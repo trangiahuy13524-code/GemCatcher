@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e859ee2f88bbcb347b4b444f3d486b2c
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 334306
+  packageName: "Easy Chara \u2013 Hisa Shark 2D Character Collection"
+  packageVersion: 1.0
+  assetPath: Assets/Easy Chara/Characters/Hisa Shark/Animation/HisaShark_AC_Main.controller
+  uploadId: 840870
