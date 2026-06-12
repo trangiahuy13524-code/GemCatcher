@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 4763363942163623837}
   m_Layer: 0
   m_Name: fallingObject
-  m_TagString: Untagged
+  m_TagString: FallingObject
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -108,7 +108,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FallingObject
   itemData: {fileID: 0}
   spriteRenderer: {fileID: 1782494709026130054}
-  lifeCycleTime: 3.5
 --- !u!50 &-6575235925896973421
 Rigidbody2D:
   serializedVersion: 5

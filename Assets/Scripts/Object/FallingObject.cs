@@ -1,8 +1,9 @@
 using System.Collections;
 using UnityEngine;
 
-public class FallingObject : MonoBehaviour
+public class FallingObject : Base
 {
+    public override bool isPlayer => false;
     [SerializeField] ItemData itemData;
     [SerializeField] SpriteRenderer spriteRenderer;
     //public float lifeCycleTime = 3;
@@ -14,22 +15,29 @@ public class FallingObject : MonoBehaviour
         spriteRenderer.sprite = itemData.sprite;
     }
 
-    void DoEffect(PlayerData player)
-    {
-        player.AddPoint(1);
-        player.PlayAudio();
-    }
-
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        PlayerData playerData = collision.gameObject.GetComponent<PlayerData>();
-        if (playerData != null)
+        Base @base = collision.gameObject.GetComponent<Base>();
+        if (@base != null)
         {
-            //playerData.AddInventory(itemData);
-            DoEffect(playerData);
-            
+            if (@base.isPlayer)
+            {
+                //playerData.AddInventory(itemData);
+                PlayerData.instance.AddPoint(itemData.value * WorldManager.Instance.CurrentCombo);
+                PlayerData.instance.PlayAudio();
+                WorldManager.Instance.CurrentCombo++;
+            }
+            else
+            {
+                return;
+            }
         }
-        Destroy(gameObject);
+        else
+        {
+            WorldManager.Instance.CurrentCombo = 1;
+        }
+        WorldManager.spawnedObjects.Remove(this);
+        WorldManager.Instance.ReturnToPool(this);
     }
 
     //private void Update()

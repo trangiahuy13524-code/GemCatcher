@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c73237e3a2711d743a6cb810c691808b, type: 3}
   m_Name: Diamond
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  sprite: {fileID: 0}
+  sprite: {fileID: 1930839287912332762, guid: 897f9a545a487fa48bbb0050f64079ad, type: 3}
+  value: 5

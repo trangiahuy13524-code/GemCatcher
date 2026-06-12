@@ -2,8 +2,9 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class PlayerData : MonoBehaviour
+public class PlayerData : Base
 {
+    public override bool isPlayer => true;
     [SerializeField] TextMeshProUGUI pointDisplayText;
     [SerializeField] AudioSource audioSource;
     public int point { get; private set; } = 0;
@@ -14,6 +15,10 @@ public class PlayerData : MonoBehaviour
     //Dictionary<ItemData, ItemUI> inventoryUI = new();
     //[SerializeField] ItemUI itemUIprefab;
     //[SerializeField] Transform gridLayoutParent;
+    private void Start()
+    {
+        instance = this;
+    }
 
     public void AddPoint(int num)
     {
@@ -26,6 +31,12 @@ public class PlayerData : MonoBehaviour
     {
         if (playAudio)
             audioSource.Play();
+    }
+
+    public void ResetPoint()
+    {
+        point = 0;
+        pointDisplayText.text = point.ToString();
     }
 
     //public void AddInventory(ItemData itemData)

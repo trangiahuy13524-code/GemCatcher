@@ -5,9 +5,5 @@ using UnityEngine.Events;
 public class ItemData : ScriptableObject
 {
     public Sprite sprite;
-
-    public virtual void Execute(ItemData source)
-    {
-
-    }
+    [Range(1, 1000)] public int value = 1;
 }

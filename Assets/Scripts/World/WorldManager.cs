@@ -1,14 +1,48 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class WorldManager : MonoBehaviour
 {
+    public static WorldManager Instance { get; private set; }
+    [Header("Combo")]
+    [SerializeField] int currentCombo = 1;
+    [SerializeField] TextMeshProUGUI comboText;
+    public int CurrentCombo
+    {
+        get { return currentCombo; }
+        set
+        {
+            currentCombo = value;
+            if (currentCombo <= 1)
+            {
+                currentCombo = 1;
+            }
+            if (comboText != null)
+            {
+                if (currentCombo <= 1)
+                {
+                    comboText.text = "";
+                    return;
+                }
+                else
+                {
+                    comboText.text = "COMBO: X" + currentCombo;
+                }
+            }
+
+        }
+    }
+
     [Header("Items")]
     [SerializeField] FallingObject obj;
     public ItemData coinSimple;
-    public List<ItemData> items = new List<ItemData>();
+    public List<ItemData> fallingItems = new List<ItemData>();
     public float interval;
     private float curTime;
+    public static HashSet<FallingObject> spawnedObjects = new HashSet<FallingObject>();
+    [SerializeField] private int initialPoolSize = 30;
+    private Queue<FallingObject> objectPool = new Queue<FallingObject>();
 
     [Header("Game Over")]
     [SerializeField] float gameOverTime = 30f;
@@ -26,7 +60,15 @@ public class WorldManager : MonoBehaviour
 
     private void Start()
     {
+        Instance = this;
         currentGameTime = gameOverTime;
+        for (int i = 0; i < initialPoolSize; i++)
+        {
+            FallingObject pooledObj = Instantiate(obj);
+            pooledObj.gameObject.SetActive(false);
+
+            objectPool.Enqueue(pooledObj);
+        }
     }
 
     void Update()
@@ -50,16 +92,7 @@ public class WorldManager : MonoBehaviour
             }
             currentDropPosX += randomNum;
             currentDropPosX = Mathf.Clamp(currentDropPosX, lowX, highX);
-            if (items.Count > 0)
-            {
-                int rand = Random.Range(0, items.Count);
-                
-                SpawnObject(items[rand], currentDropPosX);
-            }
-            else
-            {
-                SpawnObject(coinSimple, currentDropPosX);
-            }
+            SpawnObject(GetRandomItem(), currentDropPosX);
         }
         else
         {
@@ -68,7 +101,7 @@ public class WorldManager : MonoBehaviour
 
         if (currentGameTime <= 0)
         {
-            if (isGameOver)
+            if (!isGameOver)
                 GameOver();
         }
         else
@@ -79,21 +112,79 @@ public class WorldManager : MonoBehaviour
 
     void SpawnObject(ItemData itemData, int xPos)
     {
-        FallingObject spawnObject = Instantiate(obj);
+        FallingObject spawnObject = GetPooledObject();
         spawnObject.SetItemData(itemData);
         spawnObject.transform.position = new Vector3(xPos, 7, 0);
+        spawnedObjects.Add(spawnObject);
+    }
+    private ItemData GetRandomItem()
+    {
+        // 70% coin
+        if (Random.value < 0.7f || fallingItems.Count == 0)
+            return coinSimple;
+
+        // 30% weighted selection from fallingItems
+
+        int totalWeight = 0;
+
+        for (int i = 0; i < fallingItems.Count; i++)
+        {
+            totalWeight += 1 << (fallingItems.Count - 1 - i);
+        }
+
+        int roll = Random.Range(0, totalWeight);
+
+        int currentWeight = 0;
+
+        for (int i = 0; i < fallingItems.Count; i++)
+        {
+            currentWeight += 1 << (fallingItems.Count - 1 - i);
+
+            if (roll < currentWeight)
+                return fallingItems[i];
+        }
+
+        return fallingItems[0];
+    }
+    private FallingObject GetPooledObject()
+    {
+        if (objectPool.Count > 0)
+        {
+            FallingObject pooledObj = objectPool.Dequeue();
+            pooledObj.gameObject.SetActive(true);
+            return pooledObj;
+        }
+
+        // Optional: expand pool if needed
+        FallingObject newObj = Instantiate(obj);
+        return newObj;
+    }
+    public void ReturnToPool(FallingObject obj)
+    {
+        obj.gameObject.SetActive(false);
+        objectPool.Enqueue(obj);
     }
 
     void GameOver()
     {
         isGameOver = true;
         gameOverPanel.SetActive(true);
+        Time.timeScale = 0f;
     }
 
     public void ResetGame()
     {
         isGameOver = false;
-        gameObject.SetActive(false);
+        gameOverPanel.SetActive(false);
         currentGameTime = gameOverTime;
+        foreach (FallingObject obj in spawnedObjects)
+        {
+            if (obj != null)
+                ReturnToPool(obj);
+        }
+        spawnedObjects.Clear();
+        PlayerData.instance.ResetPoint();
+        CurrentCombo = 1;
+        Time.timeScale = 1f;
     }
 }
