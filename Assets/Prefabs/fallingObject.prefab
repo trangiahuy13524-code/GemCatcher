@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: -7935197337251364886}
   - component: {fileID: -6575235925896973421}
   - component: {fileID: 4763363942163623837}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: fallingObject
   m_TagString: FallingObject
   m_Icon: {fileID: 0}
@@ -133,7 +133,7 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!58 &4763363942163623837
 CircleCollider2D:
@@ -170,4 +170,4 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 1.36
+  m_Radius: 1.2

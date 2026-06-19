@@ -23,8 +23,9 @@ public class PlayerData : Base
     public void AddPoint(int num)
     {
         if (num < 0) num = 0;
+
         point += num;
-        pointDisplayText.text = point.ToString();
+        pointDisplayText.SetText("{0}", point);
     }
 
     public void PlayAudio()

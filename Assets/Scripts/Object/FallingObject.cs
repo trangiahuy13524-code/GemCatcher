@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics;
 using UnityEngine;
 
 public class FallingObject : Base
@@ -15,6 +16,7 @@ public class FallingObject : Base
         spriteRenderer.sprite = itemData.sprite;
     }
 
+    Stopwatch sw = new Stopwatch();
     private void OnCollisionEnter2D(Collision2D collision)
     {
         Base @base = collision.gameObject.GetComponent<Base>();
@@ -22,9 +24,9 @@ public class FallingObject : Base
         {
             if (@base.isPlayer)
             {
-                //playerData.AddInventory(itemData);
-                PlayerData.instance.AddPoint(itemData.value * WorldManager.Instance.CurrentCombo);
                 PlayerData.instance.PlayAudio();
+
+                PlayerData.instance.AddPoint(itemData.value * WorldManager.Instance.CurrentCombo);
                 WorldManager.Instance.CurrentCombo++;
             }
             else

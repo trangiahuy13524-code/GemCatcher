@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using System.Diagnostics;
 
 public class WorldManager : MonoBehaviour
 {
@@ -8,29 +9,25 @@ public class WorldManager : MonoBehaviour
     [Header("Combo")]
     [SerializeField] int currentCombo = 1;
     [SerializeField] TextMeshProUGUI comboText;
+    
     public int CurrentCombo
     {
-        get { return currentCombo; }
+        get => currentCombo;
         set
         {
-            currentCombo = value;
+            currentCombo = Mathf.Max(1, value);
+
+            if (comboText == null)
+                return;
+
             if (currentCombo <= 1)
             {
-                currentCombo = 1;
+                comboText.SetText("");
             }
-            if (comboText != null)
+            else
             {
-                if (currentCombo <= 1)
-                {
-                    comboText.text = "";
-                    return;
-                }
-                else
-                {
-                    comboText.text = "COMBO: X" + currentCombo;
-                }
+                comboText.SetText("COMBO: X{0}", currentCombo);
             }
-
         }
     }
 
@@ -60,6 +57,7 @@ public class WorldManager : MonoBehaviour
 
     private void Start()
     {
+        //Application.targetFrameRate = 60;
         Instance = this;
         currentGameTime = gameOverTime;
         for (int i = 0; i < initialPoolSize; i++)
