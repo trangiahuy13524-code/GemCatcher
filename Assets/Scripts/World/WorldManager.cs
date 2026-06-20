@@ -1,7 +1,9 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using System.Diagnostics;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class WorldManager : MonoBehaviour
 {
@@ -44,8 +46,15 @@ public class WorldManager : MonoBehaviour
     [Header("Game Over")]
     [SerializeField] float gameOverTime = 30f;
     [SerializeField] GameObject gameOverPanel;
+    [SerializeField] TextMeshProUGUI pointCountTMP;
+    [SerializeField] int countFrame = 120;
     private bool isGameOver = false;
     private float currentGameTime;
+
+    [Header("Pause Menu")]
+    [SerializeField] GameObject pausePanel;
+    private bool isPaused = false;
+
 
     [Header("Falling config")]
     [SerializeField] private int lowX = -5;
@@ -54,10 +63,47 @@ public class WorldManager : MonoBehaviour
     private int currentDropPosX = 0;
     
     // Update is called once per frame
+    [Header("CoinsDisplay")]
+    [SerializeField] Transform coinContent;
+    [SerializeField] ItemIcon coinIconPrefab;
+    Dictionary<ItemData, ItemIcon> itemIcons = new();
+
+    public void AddItemToDisplay(ItemData item, int amount)
+    {
+        if (item == null || amount <= 0) return;
+
+        // If already exists, increase count
+        if (itemIcons.TryGetValue(item, out ItemIcon existingIcon))
+        {
+            existingIcon.AddAmount(amount);
+        }
+        else
+        {
+            // Create new icon
+            ItemIcon icon = Instantiate(coinIconPrefab, coinContent);
+            icon.Setup(item, amount);
+
+            itemIcons.Add(item, icon);
+        }
+    }
+
+    public void ClearDisplayItem()
+    {
+        foreach (var icon in itemIcons.Values)
+        {
+            if (icon != null)
+            {
+                Destroy(icon.gameObject);
+            }
+        }
+
+        itemIcons.Clear();
+    }
+        
 
     private void Start()
     {
-        //Application.targetFrameRate = 60;
+        Application.targetFrameRate = 60;
         Instance = this;
         currentGameTime = gameOverTime;
         for (int i = 0; i < initialPoolSize; i++)
@@ -71,6 +117,11 @@ public class WorldManager : MonoBehaviour
 
     void Update()
     {
+        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            TogglePause();
+        }
+
 
         if (curTime >= interval)
         {
@@ -106,6 +157,8 @@ public class WorldManager : MonoBehaviour
         {
             currentGameTime -= Time.deltaTime;
         }
+
+
     }
 
     void SpawnObject(ItemData itemData, int xPos)
@@ -163,17 +216,52 @@ public class WorldManager : MonoBehaviour
         objectPool.Enqueue(obj);
     }
 
+    Coroutine countPointCoroutine;
     void GameOver()
     {
         isGameOver = true;
         gameOverPanel.SetActive(true);
         Time.timeScale = 0f;
+        countPointCoroutine = StartCoroutine(countPoint());
+    }
+
+    void TogglePause()
+    {
+        if (isGameOver) return;
+
+        isPaused = !isPaused;
+        pausePanel.SetActive(isPaused);
+        if (isPaused)
+        {
+            Time.timeScale = 0;
+        }
+        else
+        {
+            Time.timeScale = 1;
+        }
+    }
+
+
+    IEnumerator countPoint()
+    {
+        for (int i = 1; i < countFrame + 1; i++)
+        {
+            pointCountTMP.text = (PlayerData.instance.point * i / countFrame).ToString() + " Points";
+            yield return null;
+        }
     }
 
     public void ResetGame()
     {
         isGameOver = false;
+        isPaused = false;
         gameOverPanel.SetActive(false);
+        pausePanel.SetActive(false);
+        if (countPointCoroutine != null)
+        {
+            StopCoroutine(countPointCoroutine);
+            countPointCoroutine = null;
+        }
         currentGameTime = gameOverTime;
         foreach (FallingObject obj in spawnedObjects)
         {
@@ -182,7 +270,20 @@ public class WorldManager : MonoBehaviour
         }
         spawnedObjects.Clear();
         PlayerData.instance.ResetPoint();
+        ClearDisplayItem();
         CurrentCombo = 1;
+        Time.timeScale = 1f;
+    }
+
+    public void LoadScene(int indedx)
+    {
+        if (countPointCoroutine != null)
+        {
+            StopCoroutine(countPointCoroutine);
+            countPointCoroutine = null;
+        } 
+        
+        SceneManager.LoadScene(indedx);
         Time.timeScale = 1f;
     }
 }

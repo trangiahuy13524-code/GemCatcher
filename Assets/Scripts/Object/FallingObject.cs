@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Diagnostics;
 using UnityEngine;
 
 public class FallingObject : Base
@@ -16,7 +15,6 @@ public class FallingObject : Base
         spriteRenderer.sprite = itemData.sprite;
     }
 
-    Stopwatch sw = new Stopwatch();
     private void OnCollisionEnter2D(Collision2D collision)
     {
         Base @base = collision.gameObject.GetComponent<Base>();
@@ -28,6 +26,9 @@ public class FallingObject : Base
 
                 PlayerData.instance.AddPoint(itemData.value * WorldManager.Instance.CurrentCombo);
                 WorldManager.Instance.CurrentCombo++;
+                WorldManager.Instance.AddItemToDisplay(itemData, 1);
+                WorldManager.spawnedObjects.Remove(this);
+                WorldManager.Instance.ReturnToPool(this);
             }
             else
             {
@@ -36,10 +37,14 @@ public class FallingObject : Base
         }
         else
         {
-            WorldManager.Instance.CurrentCombo = 1;
+            if (collision.gameObject.tag == "Ground")
+            {
+                WorldManager.Instance.CurrentCombo = 1;
+                WorldManager.spawnedObjects.Remove(this);
+                WorldManager.Instance.ReturnToPool(this);
+            }
         }
-        WorldManager.spawnedObjects.Remove(this);
-        WorldManager.Instance.ReturnToPool(this);
+        
     }
 
     //private void Update()
