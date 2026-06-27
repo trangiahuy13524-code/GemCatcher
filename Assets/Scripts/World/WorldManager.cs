@@ -48,6 +48,7 @@ public class WorldManager : MonoBehaviour
     [SerializeField] GameObject gameOverPanel;
     [SerializeField] TextMeshProUGUI pointCountTMP;
     [SerializeField] int countFrame = 120;
+    [SerializeField] TextMeshProUGUI gameTimeText;
     private bool isGameOver = false;
     private float currentGameTime;
 
@@ -156,6 +157,7 @@ public class WorldManager : MonoBehaviour
         else
         {
             currentGameTime -= Time.deltaTime;
+            gameTimeText.SetText(Mathf.FloorToInt(currentGameTime).ToString());
         }
 
 

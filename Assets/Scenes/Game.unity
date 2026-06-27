@@ -1395,6 +1395,7 @@ MonoBehaviour:
   gameOverPanel: {fileID: 840908366}
   pointCountTMP: {fileID: 1774248213}
   countFrame: 120
+  gameTimeText: {fileID: 918215961}
   pausePanel: {fileID: 346213988}
   lowX: -5
   highX: 5
