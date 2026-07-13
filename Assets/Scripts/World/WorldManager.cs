@@ -157,7 +157,7 @@ public class WorldManager : MonoBehaviour
         else
         {
             currentGameTime -= Time.deltaTime;
-            gameTimeText.SetText(Mathf.FloorToInt(currentGameTime).ToString());
+            gameTimeText.SetText(Mathf.CeilToInt(currentGameTime).ToString());
         }
 
 
