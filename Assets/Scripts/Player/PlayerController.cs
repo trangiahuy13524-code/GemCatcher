@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,10 +8,14 @@ public class PlayerController : MonoBehaviour
     Animator animator;
     [SerializeField] float currentVelocity = 1f;
     [SerializeField] BoxCollider2D groundDetectCollider;
+    [SerializeField] Key dashKey = Key.LeftCtrl;
+    [SerializeField] float dashSpeedMultiplier = 3f;
+    [SerializeField] float dashDuration = 3f;
     public float walkSpeed = 1.2f;
     public float runSpeed = 3f;
     public float jumpForce = 20f;
     [SerializeField] bool isGrounded = false;
+    bool isDashing;
     
     private void Start()
     {
@@ -33,14 +38,15 @@ public class PlayerController : MonoBehaviour
     public void Move(bool run = false, Direction dir = Direction.Left)
     {
         if (!isGrounded) return;
+        float movementVelocity = isDashing ? currentVelocity * dashSpeedMultiplier : currentVelocity;
         if (dir == Direction.Right)
         {
-            rb.linearVelocityX = currentVelocity;
+            rb.linearVelocityX = movementVelocity;
             transform.localEulerAngles = new Vector3(0, 0, 0);
         }
         else
         {
-            rb.linearVelocityX = -currentVelocity;
+            rb.linearVelocityX = -movementVelocity;
             transform.localEulerAngles = new Vector3(0, 180, 0);
         }
 
@@ -66,6 +72,22 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void Dash()
+    {
+        if (isDashing) return;
+
+        StartCoroutine(DashProcess());
+    }
+
+    IEnumerator DashProcess()
+    {
+        isDashing = true;
+
+        yield return new WaitForSeconds(dashDuration);
+
+        isDashing = false;
+    }
+
     void StopWalking()
     {
         animator.SetBool("walking", false);
@@ -86,6 +108,11 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        if (Keyboard.current[dashKey].wasPressedThisFrame)
+        {
+            Dash();
+        }
+
         bool aPressed = Keyboard.current.aKey.isPressed;
         bool dPressed = Keyboard.current.dKey.isPressed;
         bool shiftPressed = Keyboard.current.leftShiftKey.isPressed;
